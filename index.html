@@ -1,0 +1,179 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>FinalShell 激活码在线生成 | 哈希计算</title>
+  <meta name="description" content="FinalShell激活码在线生成工具，支持 FinalShell 3.9.6、4.5、4.6 等多个版本离线激活，包括专业版和高级版破解">
+  <meta name="keywords" content="FinalShell激活码,在线生成,FinalShell破解激活码,FinalShell 3.9.6激活码,FinalShell 4.5破解,FinalShell 4.6激活码,FinalShell激活码生成工具">
+  <script src="crypto-js.min.js"></script>
+  <style>
+    html, body {
+      background: transparent !important;
+      font-family: system-ui, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 520px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: rgba(255,255,255,0.95);
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+    h2 {
+      text-align: center;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: #222;
+    }
+    input[type="text"], select, button {
+      width: 100%;
+      padding: 0.75rem;
+      margin: 0.5rem 0;
+      font-size: 1rem;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+    input, select {
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #2563eb;
+    }
+    .copy-btn {
+      background-color: #10b981;
+      margin-top: 0;
+    }
+    .copy-btn:hover {
+      background-color: #059669;
+    }
+    .radio-group {
+      margin: 0.5rem 0;
+    }
+    .radio-group label {
+      margin-right: 1rem;
+    }
+    .result {
+      margin-top: 1rem;
+      background: #f9fafb;
+      border: 1px dashed #ccc;
+      padding: 1rem;
+      font-family: monospace;
+      white-space: pre-wrap;
+      border-radius: 6px;
+      color: #222;
+    }
+    .ad-banner {
+      margin: 2rem auto;
+      text-align: center;
+      font-size: 0.95rem;
+      color: #333;
+    }
+    .ad-banner a {
+      color: #3b82f6;
+      text-decoration: none;
+    }
+    .ad-banner a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>FinalShell 激活码在线生成<br></h2>
+
+    <input id="machineCode" type="text" placeholder="请输入机器码...">
+
+    <h4>请选择你使用的 FinalShell 版本</h4>
+    <div class="radio-group">
+      <label><input type="radio" name="version" value="old" checked> < 3.9.6</label>
+      <label><input type="radio" name="version" value="new"> ≥ 3.9.6</label>
+      <label><input type="radio" name="version" value="v45"> 4.5</label>
+      <label><input type="radio" name="version" value="v46"> 4.6</label>
+    </div>
+
+    <h4>请选择你想要激活的版本</h4>
+    <div class="radio-group">
+      <label><input type="radio" name="type" value="pro" checked> 专业版</label>
+      <label><input type="radio" name="type" value="adv"> 高级版</label>
+    </div>
+
+    <button onclick="generate()">生成激活码</button>
+    <h4>请在点击「生成激活码」按钮后在这里复制你的激活码：</h4>
+    <div class="result" id="output"></div>
+
+    <h4 style="color: red; text-align: center;">
+      <br><br>
+      本程序仅供学习研究使用，<br>
+      严禁用于商业用途或非法目的。<br>
+      使用产生的任何风险由使用者自行承担，<br>
+      作者不承担任何法律责任！
+    </h4>
+    <h5 style="text-align: center;">
+      <br>
+      FinalShell-Active 使用 <a href="https://github.com/LuoyeAutumn/FinalShell-Active/blob/main/LICENSE">MIT许可协议</a> 开放源代码
+      <br>
+      <a href="https://github.com/LuoyeAutumn/">点击跳转作者 GitHub 主页</a>
+    </h5>
+    
+    </div>
+  </div>
+  <div style="font-size:0.01px;color:transparent;height:0;overflow:hidden;">
+    FinalShell-Active 激活码在线生成工具，支持3.9.6、4.5、4.6等版本的专业版和高级版破解。FinalShell 3.9.6 激活码生成，FinalShell 4.5 破解激活码工具，FinalShell 4.6离线激活码生成。支持多版本，绿色安全。
+  </div>
+  <script>
+    function md5(str) {
+      return CryptoJS.MD5(str).toString();
+    }
+    function keccak384(str) {
+      return CryptoJS.SHA3(str, { outputLength: 384 }).toString();
+    }
+    function getRadioValue(name) {
+      const radios = document.getElementsByName(name);
+      for (let r of radios) if (r.checked) return r.value;
+    }
+
+    function generate() {
+      const code = document.getElementById('machineCode').value.trim();
+      const out = document.getElementById('output');
+      if (!code) {
+        out.textContent = '⚠️ 请输入机器码后再试！';
+        return;
+      }
+
+      const version = getRadioValue('version');
+      const type = getRadioValue('type');
+      let result = '';
+
+      if (version === 'old') {
+        result = type === 'adv'
+          ? md5('61305' + code + '8552').slice(8, 24)
+          : md5('2356' + code + '13593').slice(8, 24);
+      } else if (version === 'new') {
+        result = type === 'adv'
+          ? keccak384(code + 'hSf(78cvVlS5E').slice(12, 28)
+          : keccak384(code + 'FF3Go(*Xvbb5s2').slice(12, 28);
+      } else if (version === 'v45') {
+        result = type === 'adv'
+          ? keccak384(code + 'wcegS3gzA$').slice(12, 28)
+          : keccak384(code + 'b(xxkHn%z);x').slice(12, 28);
+      } else {
+        result = type === 'adv'
+          ? keccak384(code + 'csSf5*xlkgYSX,y').slice(12, 28)
+          : keccak384(code + 'Scfg*ZkvJZc,s,Y').slice(12, 28);
+      }
+
+
+      out.textContent = `${result}`;
+    }
+
+  </script>
+</body>
+</html>
