@@ -1,157 +1,533 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FinalShell 激活码在线生成 | 哈希计算</title>
-  <meta name="description" content="FinalShell激活码在线生成工具，支持 FinalShell 3.9.6、4.5、4.6 等多个版本离线激活，包括专业版和高级版破解">
-  <meta name="keywords" content="FinalShell激活码,在线生成,FinalShell破解激活码,FinalShell 3.9.6激活码,FinalShell 4.5破解,FinalShell 4.6激活码,FinalShell激活码生成工具">
+  <meta name="description" content="FinalShell激活码在线生成工具，支持 FinalShell 3.9.6、4.5、4.6 等多个版本离线激活，包括专业版和高级版">
+  <meta name="keywords" content="FinalShell激活码,在线生成,FinalShell 3.9.6激活码,FinalShell 4.5激活码,FinalShell 4.6激活码,FinalShell激活码生成工具">
   <script src="crypto-js.min.js"></script>
   <style>
-    html, body {
-      background: transparent !important;
-      font-family: system-ui, sans-serif;
+    /* 全局样式 & 主题变量 - 初始跟随系统 */
+    :root {
+      /* 浅色模式（新淡蓝+浅青渐变系） */
+      --bg-primary: linear-gradient(135deg, #f5f9ff 0%, #eaf6fa 100%); /* 淡蓝→浅青 */
+      --bg-card: linear-gradient(135deg, #ffffff 0%, #f9fcff 100%); /* 纯白→极浅蓝 */
+      --bg-card-accent: linear-gradient(135deg, #f9fcff 0%, #eaf6fa 100%); /* hover渐变 */
+      --bg-input: #ffffff;
+      --bg-btn-primary: linear-gradient(135deg, #4a90e2 0%, #357abd 100%); /* 柔和蓝渐变 */
+      --bg-btn-primary-hover: linear-gradient(135deg, #357abd 0%, #285f91 100%);
+      --bg-btn-copy: linear-gradient(135deg, #36d399 0%, #2aa780 100%);
+      --bg-btn-copy-hover: linear-gradient(135deg, #2aa780 0%, #1e8566 100%);
+      --bg-theme-btn: linear-gradient(135deg, #eaf6fa 0%, #d4e9f0 100%);
+      --bg-theme-btn-hover: linear-gradient(135deg, #d4e9f0 0%, #bdd9e6 100%);
+      --bg-result: linear-gradient(135deg, #eaf6fa 0%, #d4e9f0 100%); /* 结果框渐变 */
+      --text-primary: #2d3748;
+      --text-secondary: #718096;
+      --border-primary: #d4e9f0;
+      --border-dashed: #a0c4e0;
+      --shadow-card: 0 2px 8px rgba(74, 144, 226, 0.08);
+      --shadow-hover: 0 4px 12px rgba(74, 144, 226, 0.12);
+      --shadow-theme-btn: 0 2px 4px rgba(74, 144, 226, 0.1);
+      --transition-base: all 0.3s ease-in-out;
+      --icon-color: #718096;
+      /* 新增：选项按钮样式变量 */
+      --option-btn-bg: linear-gradient(135deg, #ffffff 0%, #f9fcff 100%);
+      --option-btn-bg-hover: linear-gradient(135deg, #f9fcff 0%, #eaf6fa 100%);
+      --option-btn-bg-active: linear-gradient(135deg, #eaf6fa 0%, #d4e9f0 100%);
+      --option-btn-border: #d4e9f0;
+      --option-btn-border-active: #4a90e2;
+      --option-btn-shadow: 0 2px 4px rgba(74, 144, 226, 0.05);
+      --option-btn-shadow-active: 0 2px 6px rgba(74, 144, 226, 0.1);
+    }
+
+    /* 深色模式（蓝紫色渐变系 - 保留原有） */
+    [data-theme="dark"] {
+      --bg-primary: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      --bg-card: linear-gradient(135deg, #1e293b 0%, #232f42 100%);
+      --bg-card-accent: linear-gradient(135deg, #232f42 0%, #27374d 100%);
+      --bg-input: #27374d;
+      --bg-btn-primary: linear-gradient(135deg, #3b82f6 0%, #4f46e5 100%); /* 蓝紫渐变 */
+      --bg-btn-primary-hover: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      --bg-btn-copy: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      --bg-btn-copy-hover: linear-gradient(135deg, #059669 0%, #047d58 100%);
+      --bg-theme-btn: linear-gradient(135deg, #27374d 0%, #334155 100%);
+      --bg-theme-btn-hover: linear-gradient(135deg, #334155 100%, #475569 100%);
+      --bg-result: linear-gradient(135deg, #27374d 0%, #334155 100%);
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --border-primary: #334155;
+      --border-dashed: #475569;
+      --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.2);
+      --shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.3);
+      --shadow-theme-btn: 0 2px 4px rgba(0, 0, 0, 0.2);
+      --transition-base: all 0.3s ease-in-out;
+      --icon-color: #94a3b8;
+      /* 新增：选项按钮样式变量 */
+      --option-btn-bg: linear-gradient(135deg, #1e293b 0%, #232f42 100%);
+      --option-btn-bg-hover: linear-gradient(135deg, #232f42 0%, #27374d 100%);
+      --option-btn-bg-active: linear-gradient(135deg, #27374d 0%, #334155 100%);
+      --option-btn-border: #334155;
+      --option-btn-border-active: #3b82f6;
+      --option-btn-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      --option-btn-shadow-active: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    /* 浅色模式（明确指定新渐变） */
+    [data-theme="light"] {
+      --bg-primary: linear-gradient(135deg, #f5f9ff 0%, #eaf6fa 100%);
+      --bg-card: linear-gradient(135deg, #ffffff 0%, #f9fcff 100%);
+      --bg-card-accent: linear-gradient(135deg, #f9fcff 0%, #eaf6fa 100%);
+      --bg-input: #ffffff;
+      --bg-btn-primary: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+      --bg-btn-primary-hover: linear-gradient(135deg, #357abd 0%, #285f91 100%);
+      --bg-btn-copy: linear-gradient(135deg, #36d399 0%, #2aa780 100%);
+      --bg-btn-copy-hover: linear-gradient(135deg, #2aa780 0%, #1e8566 100%);
+      --bg-theme-btn: linear-gradient(135deg, #eaf6fa 0%, #d4e9f0 100%);
+      --bg-theme-btn-hover: linear-gradient(135deg, #d4e9f0 0%, #bdd9e6 100%);
+      --bg-result: linear-gradient(135deg, #eaf6fa 0%, #d4e9f0 100%);
+      --text-primary: #2d3748;
+      --text-secondary: #718096;
+      --border-primary: #d4e9f0;
+      --border-dashed: #a0c4e0;
+      --shadow-card: 0 2px 8px rgba(74, 144, 226, 0.08);
+      --shadow-hover: 0 4px 12px rgba(74, 144, 226, 0.12);
+      --shadow-theme-btn: 0 2px 4px rgba(74, 144, 226, 0.1);
+      --transition-base: all 0.3s ease-in-out;
+      --icon-color: #718096;
+      /* 新增：选项按钮样式变量 */
+      --option-btn-bg: linear-gradient(135deg, #ffffff 0%, #f9fcff 100%);
+      --option-btn-bg-hover: linear-gradient(135deg, #f9fcff 0%, #eaf6fa 100%);
+      --option-btn-bg-active: linear-gradient(135deg, #eaf6fa 0%, #d4e9f0 100%);
+      --option-btn-border: #d4e9f0;
+      --option-btn-border-active: #4a90e2;
+      --option-btn-shadow: 0 2px 4px rgba(74, 144, 226, 0.05);
+      --option-btn-shadow-active: 0 2px 6px rgba(74, 144, 226, 0.1);
+    }
+
+    * {
       margin: 0;
       padding: 0;
-    }
-    .container {
-      max-width: 520px;
-      margin: 2rem auto;
-      padding: 2rem;
-      background: rgba(255,255,255,0.95);
-      border-radius: 10px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-    }
-    h2 {
-      text-align: center;
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
-      color: #222;
-    }
-    input[type="text"], select, button {
-      width: 100%;
-      padding: 0.75rem;
-      margin: 0.5rem 0;
-      font-size: 1rem;
-      border-radius: 6px;
       box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     }
-    input, select {
-      border: 1px solid #ccc;
+
+    html, body {
+      min-height: 100vh;
+      background: var(--bg-primary); /* 背景用渐变 */
+      color: var(--text-primary);
+      transition: var(--transition-base);
+      padding: 1rem;
+      position: relative;
     }
+
+    /* 主题切换按钮 - 右上角悬浮 */
+    .theme-toggle-btn {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: none;
+      background: var(--bg-theme-btn); /* 按钮用渐变 */
+      color: var(--icon-color);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-theme-btn);
+      transition: var(--transition-base);
+      z-index: 999;
+    }
+
+    .theme-toggle-btn:hover {
+      background: var(--bg-theme-btn-hover);
+      transform: rotate(15deg) scale(1.05);
+    }
+
+    .theme-toggle-btn svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+      transition: var(--transition-base);
+    }
+
+    /* 容器 */
+    .container {
+      max-width: 500px;
+      margin: 2rem auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* 卡片通用样式（渐变优化） */
+    .card {
+      background: var(--bg-card); /* 卡片用渐变 */
+      border: 1px solid var(--border-primary);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-card);
+      transition: var(--transition-base);
+      position: relative;
+      overflow: hidden; /* 防止渐变溢出 */
+    }
+
+    .card:hover {
+      box-shadow: var(--shadow-hover);
+      background: var(--bg-card-accent); /* hover渐变 */
+      transform: translateY(-2px); /* 轻微上浮增强交互 */
+    }
+
+    /* 标题 */
+    .title {
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text-primary);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.05); /* 轻微文字阴影增强可读性 */
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+      font-weight: 400;
+    }
+
+    /* 输入框 */
+    input[type="text"] {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      font-size: 1rem;
+      border: 1px solid var(--border-primary);
+      border-radius: 8px;
+      background-color: var(--bg-input);
+      color: var(--text-primary);
+      transition: var(--transition-base);
+      outline: none;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.03); /* 内阴影增强质感 */
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--bg-btn-primary);
+      box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1), inset 0 1px 3px rgba(0,0,0,0.03);
+    }
+
+    input[type="text"]::placeholder {
+      color: var(--text-secondary);
+    }
+
+    /* 隐藏原生单选框 */
+    .radio-hidden {
+      display: none;
+    }
+
+    /* 选项按钮组样式 */
+    .option-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin: 0.8rem 0 1.2rem;
+    }
+
+    /* 选项按钮样式 */
+    .option-btn {
+      flex: 1;
+      min-width: 80px;
+      padding: 0.7rem 0.5rem;
+      font-size: 0.9rem;
+      border: 1px solid var(--option-btn-border);
+      border-radius: 8px;
+      background: var(--option-btn-bg);
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: var(--transition-base);
+      text-align: center;
+      box-shadow: var(--option-btn-shadow);
+    }
+
+    .option-btn:hover {
+      background: var(--option-btn-bg-hover);
+      transform: translateY(-1px);
+      box-shadow: var(--option-btn-shadow-active);
+    }
+
+    /* 选中状态样式 */
+    .radio-hidden:checked + .option-btn {
+      background: var(--option-btn-bg-active);
+      border-color: var(--option-btn-border-active);
+      box-shadow: var(--option-btn-shadow-active);
+      font-weight: 500;
+    }
+
+    /* 按钮（渐变优化） */
     button {
-      background-color: #3b82f6;
-      color: white;
+      width: 100%;
+      padding: 0.85rem;
+      font-size: 1rem;
+      font-weight: 500;
+      border-radius: 8px;
       border: none;
       cursor: pointer;
+      transition: var(--transition-base);
+      color: #ffffff;
+      background: var(--bg-btn-primary); /* 按钮渐变 */
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
     }
-    button:hover {
-      background-color: #2563eb;
+
+    .btn-generate {
+      margin-bottom: 0.8rem;
     }
-    .copy-btn {
-      background-color: #10b981;
-      margin-top: 0;
+
+    .btn-generate:hover {
+      background: var(--bg-btn-primary-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
     }
-    .copy-btn:hover {
-      background-color: #059669;
-    }
-    .radio-group {
-      margin: 0.5rem 0;
-    }
-    .radio-group label {
-      margin-right: 1rem;
-    }
-    .result {
-      margin-top: 1rem;
-      background: #f9fafb;
-      border: 1px dashed #ccc;
+
+    /* 结果区域（渐变+交互） */
+    .result-box {
+      margin-top: 0.5rem;
+      background: var(--bg-result); /* 结果框渐变 */
+      border: 1px dashed var(--border-dashed);
+      border-radius: 8px;
       padding: 1rem;
-      font-family: monospace;
+      font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
       white-space: pre-wrap;
-      border-radius: 6px;
-      color: #222;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      color: var(--text-primary);
+      word-break: break-all;
+      cursor: pointer;
+      transition: var(--transition-base);
+      position: relative;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
     }
-    .ad-banner {
-      margin: 2rem auto;
+
+    .result-box:hover {
+      background: linear-gradient(135deg, rgba(74, 144, 226, 0.1) 0%, rgba(74, 144, 226, 0.15) 100%);
+      border-color: var(--bg-btn-primary);
+      transform: scale(1.01); /* 轻微放大增强反馈 */
+    }
+
+    .result-box::after {
+      content: "点击复制";
+      position: absolute;
+      right: 1rem;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      transition: var(--transition-base);
+    }
+
+    .result-box.copied::after {
+      content: "已复制 ✔";
+      color: var(--bg-btn-copy);
+      transform: scale(1.1); /* 复制成功轻微放大提示 */
+    }
+
+    /* 声明区域 */
+    .declaration {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
       text-align: center;
-      font-size: 0.95rem;
-      color: #333;
+      line-height: 1.6;
+      margin-top: 1rem;
     }
-    .ad-banner a {
-      color: #3b82f6;
+
+    .declaration .red {
+      color: #ef4444;
+      font-weight: 500;
+    }
+
+    /* 底部链接 */
+    .footer-link {
+      text-align: center;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+    }
+
+    .footer-link a {
+      color: var(--bg-btn-primary);
       text-decoration: none;
+      transition: var(--transition-base);
+      font-weight: 500;
     }
-    .ad-banner a:hover {
+
+    .footer-link a:hover {
       text-decoration: underline;
+      color: var(--bg-btn-primary-hover);
+    }
+
+    /* 隐藏冗余内容 */
+    .hidden {
+      font-size: 0;
+      color: transparent;
+      height: 0;
+      overflow: hidden;
     }
   </style>
 </head>
-<body>
+<body data-theme="system">
+  <!-- 主题切换按钮（单按钮） -->
+  <button class="theme-toggle-btn" id="themeToggleBtn" title="切换主题">
+    <!-- 系统图标（初始） -->
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id="themeIcon">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm0-4h-2V7h2v8z"/>
+    </svg>
+  </button>
+
   <div class="container">
-    <h2>FinalShell 激活码在线生成<br></h2>
+    <!-- 主功能卡片 -->
+    <div class="card">
+      <h2 class="title">FinalShell 激活码在线生成</h2>
+      <h4 class="subtitle">支持多版本专业版/高级版离线激活</h4>
+      <!-- 机器码输入 -->
+      <input id="machineCode" type="text" placeholder="请输入FinalShell机器码...">
+      
+      <!-- 版本选择 - 卡片按钮式 -->
+      <h4 class="subtitle">选择 FinalShell 版本</h4>
+      <div class="option-group">
+        <input type="radio" name="version" value="old" id="version-old" class="radio-hidden" checked>
+        <label for="version-old" class="option-btn">＜ 3.9.6</label>
+        
+        <input type="radio" name="version" value="new" id="version-new" class="radio-hidden">
+        <label for="version-new" class="option-btn">≥ 3.9.6</label>
+        
+        <input type="radio" name="version" value="v45" id="version-v45" class="radio-hidden">
+        <label for="version-v45" class="option-btn">4.5 版本</label>
+        
+        <input type="radio" name="version" value="v46" id="version-v46" class="radio-hidden">
+        <label for="version-v46" class="option-btn">4.6 版本</label>
+      </div>
 
-    <input id="machineCode" type="text" placeholder="请输入机器码...">
+      <!-- 激活版本选择 - 卡片按钮式 -->
+      <h4 class="subtitle">选择激活版本类型</h4>
+      <div class="option-group">
+        <input type="radio" name="type" value="pro" id="type-pro" class="radio-hidden" checked>
+        <label for="type-pro" class="option-btn">专业版</label>
+        
+        <input type="radio" name="type" value="adv" id="type-adv" class="radio-hidden">
+        <label for="type-adv" class="option-btn">高级版</label>
+      </div>
 
-    <h4>请选择你使用的 FinalShell 版本</h4>
-    <div class="radio-group">
-      <label><input type="radio" name="version" value="old" checked> < 3.9.6</label>
-      <label><input type="radio" name="version" value="new"> ≥ 3.9.6</label>
-      <label><input type="radio" name="version" value="v45"> 4.5</label>
-      <label><input type="radio" name="version" value="v46"> 4.6</label>
+      <!-- 功能按钮 -->
+      <button class="btn-generate" onclick="generate()">生成激活码</button>
+
+      <!-- 结果展示（点击复制） -->
+      <h4 class="subtitle" style="margin-top: 1rem;">激活码结果</h4>
+      <div class="result-box" id="output" onclick="copyResult()">请输入机器码并点击生成</div>
     </div>
 
-    <h4>请选择你想要激活的版本</h4>
-    <div class="radio-group">
-      <label><input type="radio" name="type" value="pro" checked> 专业版</label>
-      <label><input type="radio" name="type" value="adv"> 高级版</label>
-    </div>
-
-    <button onclick="generate()">生成激活码</button>
-    <h4>请在点击「生成激活码」按钮后在这里复制你的激活码：</h4>
-    <div class="result" id="output"></div>
-
-    <h4 style="color: red; text-align: center;">
-      <br><br>
-      本程序仅供学习研究使用，<br>
-      严禁用于商业用途或非法目的。<br>
-      使用产生的任何风险由使用者自行承担，<br>
-      作者不承担任何法律责任！
-    </h4>
-    <h5 style="text-align: center;">
-      <br>
-      FinalShell-Active 使用 <a href="https://github.com/LuoyeAutumn/FinalShell-Active/blob/main/LICENSE">MIT许可协议</a> 开放源代码
-      <br>
-      <a href="https://github.com/LuoyeAutumn/">点击跳转作者 GitHub 主页</a>
-    </h5>
-    
+    <!-- 声明卡片 -->
+    <div class="card">
+      <div class="declaration">
+        <span class="red">本程序仅供学习研究使用，严禁用于商业用途或非法目的。</span><br>
+        使用产生的任何风险由使用者自行承担，作者不承担任何法律责任！
+      </div>
+      <div class="footer-link">
+        FinalShell-Active 基于 <a href="https://github.com/LuoyeAutumn/FinalShell-Active/blob/main/LICENSE">MIT许可协议</a> 开源
+        <br>
+        <a href="https://github.com/LuoyeAutumn/">作者 GitHub 主页</a>
+      </div>
     </div>
   </div>
-  <div style="font-size:0.01px;color:transparent;height:0;overflow:hidden;">
+
+  <!-- 隐藏原冗余文本 -->
+  <div class="hidden">
     FinalShell-Active 激活码在线生成工具，支持3.9.6、4.5、4.6等版本的专业版和高级版破解。FinalShell 3.9.6 激活码生成，FinalShell 4.5 破解激活码工具，FinalShell 4.6离线激活码生成。支持多版本，绿色安全。
   </div>
+
   <script>
+    // ========== 主题切换核心功能 ==========
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const themeIcon = document.getElementById('themeIcon');
+    const htmlElement = document.documentElement;
+    // 主题循环列表：system → light → dark → system...
+    const themeCycle = ['system', 'light', 'dark'];
+    // 图标SVG路径（对应不同主题）
+    const iconPaths = {
+      system: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm0-4h-2V7h2v8z',
+      light: 'M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z',
+      dark: 'M20 15.31L23.31 12 20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z'
+    };
+
+    // 初始化主题
+    function initTheme() {
+      const savedTheme = localStorage.getItem('theme') || 'system';
+      setTheme(savedTheme);
+    }
+
+    // 设置主题（含图标更新）
+    function setTheme(theme) {
+      // 更新HTML主题属性
+      if (theme === 'system') {
+        const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        htmlElement.setAttribute('data-theme', systemDark ? 'dark' : 'light');
+      } else {
+        htmlElement.setAttribute('data-theme', theme);
+      }
+      // 更新图标
+      themeIcon.querySelector('path').setAttribute('d', iconPaths[theme]);
+      // 保存到本地存储
+      localStorage.setItem('theme', theme);
+    }
+
+    // 切换主题（循环切换）
+    function toggleTheme() {
+      const currentTheme = localStorage.getItem('theme') || 'system';
+      const currentIndex = themeCycle.indexOf(currentTheme);
+      const nextIndex = (currentIndex + 1) % themeCycle.length;
+      const nextTheme = themeCycle[nextIndex];
+      setTheme(nextTheme);
+      // 添加点击动画
+      themeToggleBtn.classList.add('animate');
+      setTimeout(() => themeToggleBtn.classList.remove('animate'), 300);
+    }
+
+    // 绑定主题切换按钮事件
+    themeToggleBtn.addEventListener('click', toggleTheme);
+
+    // 监听系统主题变化（仅跟随系统时生效）
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      if (localStorage.getItem('theme') === 'system') {
+        initTheme();
+      }
+    });
+
+    // 初始化
+    initTheme();
+
+    // ========== 原有功能逻辑 ==========
+    // 哈希计算
     function md5(str) {
       return CryptoJS.MD5(str).toString();
     }
     function keccak384(str) {
       return CryptoJS.SHA3(str, { outputLength: 384 }).toString();
     }
+
+    // 获取单选框值
     function getRadioValue(name) {
       const radios = document.getElementsByName(name);
       for (let r of radios) if (r.checked) return r.value;
     }
 
+    // 生成激活码
     function generate() {
       const code = document.getElementById('machineCode').value.trim();
       const out = document.getElementById('output');
       if (!code) {
-        out.textContent = '⚠️ 请输入机器码后再试！';
+        out.textContent = '⚠️ 请先输入有效的机器码！';
         return;
       }
-
       const version = getRadioValue('version');
       const type = getRadioValue('type');
       let result = '';
-
+      // 原生成逻辑不变
       if (version === 'old') {
         result = type === 'adv'
           ? md5('61305' + code + '8552').slice(8, 24)
@@ -169,11 +545,27 @@
           ? keccak384(code + 'csSf5*xlkgYSX,y').slice(12, 28)
           : keccak384(code + 'Scfg*ZkvJZc,s,Y').slice(12, 28);
       }
-
-
-      out.textContent = `${result}`;
+      out.textContent = result;
     }
 
+    // 复制激活码（集成到结果框点击）
+    function copyResult() {
+      const out = document.getElementById('output');
+      const text = out.textContent;
+      if (text === '请输入机器码并点击生成' || text.includes('⚠️')) {
+        alert('暂无有效激活码可复制！');
+        return;
+      }
+      navigator.clipboard.writeText(text).then(() => {
+        // 显示复制成功状态
+        out.classList.add('copied');
+        setTimeout(() => {
+          out.classList.remove('copied');
+        }, 1500);
+      }).catch(() => {
+        alert('复制失败，请手动复制！');
+      });
+    }
   </script>
 </body>
 </html>
